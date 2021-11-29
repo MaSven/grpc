@@ -12,15 +12,36 @@ jobs:
   check_format:
     runs-on: ubuntu-latest
     name: Check format
-    container:
-      image: elixir:1.9-slim
+    strategy:
+      matrix:
+        elixir: [1.12.3]
+        otp: [24.1.5]
+
     steps:
-      - uses: actions/checkout@v1
-      - name: Install Dependencies
-        run: |
-          mix local.rebar --force
-          mix local.hex --force
-          mix deps.get
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ matrix.otp }}-${{ matrix.elixir }}-mix-
+      - name: Set up Elixir
+        uses: erlef/setup-elixir@988e02bfe678367a02564f65ca2e37726dc0268f
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+
+      - name: Retrieve Mix Dependencies Cache
+        uses: actions/cache@v2
+        id: mix-cache # id to use in retrieve action
+        with:
+          path: deps
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      - name: Install mix dependencies
+        if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
+        run: mix deps.get
       - name: Check format
         run: mix format --check-formatted
 
@@ -36,50 +57,89 @@ jobs:
             elixir: 1.10.x
     needs: check_format
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-elixir@v1.2.0
-      with:
-        otp-version: ${{matrix.otp}}
-        elixir-version: ${{matrix.elixir}}
-    - name: Install Dependencies
-      run: |
-        mix local.rebar --force
-        mix local.hex --force
-        mix deps.get
-    - name: Run Tests
-      run: mix test
+      - uses: actions/checkout@v2
+      - name: Retrieve Mix Dependencies Cache
+        uses: actions/cache@v2
+        id: mix-cache # id to use in retrieve action
+        with:
+          path: deps
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - name: Install mix dependencies
+        if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
+        run: mix deps.get
+      - name: Run Tests
+        run: mix test
 
   interop-tests:
+    strategy:
+      matrix:
+        otp: [20.x, 21.x, 22.x]
+        elixir: [1.7.x, 1.8.x, 1.9.x, 1.10.x]
+        exclude:
+          - otp: 20.x
+            elixir: 1.10.x
     runs-on: ubuntu-latest
     name: Interop tests
-    container:
-      image: elixir:1.9-slim
     needs: check_format
     steps:
-    - uses: actions/checkout@v1
-    - name: Install Dependencies
-      run: |
-        mix local.rebar --force
-        mix local.hex --force
-        mix deps.get
-      working-directory: ./interop
-    - name: Run interop tests
-      run: mix run script/run.exs
-      working-directory: ./interop
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            deps
+            _build
+          key: interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+      - name: Retrieve Mix Dependencies Cache
+        uses: actions/cache@v2
+        id: mix-cache # id to use in retrieve action
+        with:
+          path: deps
+          key: ${{ runner.os }}-interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      - name: Install mix dependencies
+        if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
+        run: mix deps.get
+        working-directory: ./interop
+      - name: Run interop tests
+        run: mix run script/run.exs
+        working-directory: ./interop
 
   check_release:
     runs-on: ubuntu-latest
     name: Check release
     needs: check_format
-    container:
-      image: elixir:1.9-slim
+    strategy:
+      matrix:
+        otp: [20.x, 21.x, 22.x]
+        elixir: [1.7.x, 1.8.x, 1.9.x, 1.10.x]
+        exclude:
+          - otp: 20.x
+            elixir: 1.10.x
     steps:
-      - uses: actions/checkout@v1
-      - name: Install Dependencies
-        run: |
-          mix local.rebar --force
-          mix local.hex --force
-          mix deps.get
+      - uses: actions/checkout@v2
+      - name: Retrieve Mix Dependencies Cache
+        uses: actions/cache@v2
+        id: mix-cache # id to use in retrieve action
+        with:
+          path: deps
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - name: Install mix dependencies
+        if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
+        run: mix deps.get
       - name: Build hex
         run: mix hex.build
       - name: Generate docs
