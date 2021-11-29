@@ -36,7 +36,7 @@ defmodule GRPC.Integration.TestCase do
       {:ok, _, ^port} ->
         result
 
-      {:error, :eaddrinuse} ->
+      {:error, :eaddrinuse,_port} ->
         Logger.warn("Got eaddrinuse when reconnecting to #{server}:#{port}. retry: #{retry}")
 
         if retry >= 1 do
