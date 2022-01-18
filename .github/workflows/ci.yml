@@ -14,8 +14,8 @@ jobs:
     name: Check format
     strategy:
       matrix:
-        elixir: [1.12.3]
-        otp: [24.1.5]
+        elixir: [1.13.2]
+        otp: [24.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -50,8 +50,8 @@ jobs:
     name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
       matrix:
-        otp: [20.x, 21.x, 22.x]
-        elixir: [1.7.x, 1.8.x, 1.9.x, 1.10.x]
+        otp: [20.3.x, 21.x, 22.x,23.x,24.x]
+        elixir: [1.7.x, 1.8.x, 1.9.x, 1.10.x,1.11.x,1.12.x,1.13.x]
         exclude:
           - otp: 20.x
             elixir: 1.10.x
@@ -77,8 +77,8 @@ jobs:
   interop-tests:
     strategy:
       matrix:
-        otp: [20.3.x, 21.x, 22.x]
-        elixir: [1.7.x, 1.8.x, 1.9.x, 1.10.x]
+        otp: [20.3.x, 21.x, 22.x,23.x,24.x]
+        elixir: [1.7.x, 1.8.x, 1.9.x, 1.10.x,1.11.x,1.12.x,1.13.x]
         exclude:
           - otp: 20.x
             elixir: 1.10.x
