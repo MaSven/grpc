@@ -41,7 +41,7 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
       - name: Install mix dependencies
         if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
-        run: mix deps.get
+        run: mix deps.get --all
       - name: Check format
         run: mix format --check-formatted
 
@@ -124,7 +124,7 @@ jobs:
           key: ${{ runner.os }}-interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
       - name: Install mix dependencies
         if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
-        run: mix deps.get
+        run: mix deps.get --all
         working-directory: ./interop
       - name: Run interop tests
         run: mix run script/run.exs
@@ -163,7 +163,7 @@ jobs:
           elixir-version: ${{matrix.elixir}}
       - name: Install mix dependencies
         if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
-        run: mix deps.get
+        run: mix deps.get --all
       - name: Build hex
         run: mix hex.build
       - name: Generate docs
