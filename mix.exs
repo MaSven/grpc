@@ -39,7 +39,7 @@ defmodule GRPC.Mixfile do
       {:protobuf, "~> 0.9"},
       {:cowboy, "~> 2.9"},
       {:gun, "~> 2.0.0-rc.2"},
-      {:ex_doc, "~> 0.23", only: :dev},
+      {:ex_doc, "~> 0.27", only: :dev},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
