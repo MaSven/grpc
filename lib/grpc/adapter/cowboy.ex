@@ -68,7 +68,7 @@ defmodule GRPC.Adapter.Cowboy do
 
         error
 
-      {:error, _} = error ->
+      {:error, _reason} = error ->
         error
     end
   end
