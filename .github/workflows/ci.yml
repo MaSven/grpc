@@ -24,7 +24,7 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}
+          key: ${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}-v1
           restore-keys: |
             ${{ matrix.otp }}-${{ matrix.elixir }}-mix-
       - name: Set up Elixir
@@ -38,7 +38,7 @@ jobs:
         id: mix-cache # id to use in retrieve action
         with:
           path: deps
-          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-v1
       - name: Install mix dependencies
         if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
         run: mix deps.get --all
@@ -71,7 +71,7 @@ jobs:
         id: mix-cache # id to use in retrieve action
         with:
           path: deps
-          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-v1
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.otp}}
@@ -108,7 +108,7 @@ jobs:
           path: |
             deps
             _build
-          key: interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}
+          key: interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles('**/mix.lock') }}-v1
           restore-keys: |
             interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-
       - name: Set up Elixir
@@ -121,7 +121,7 @@ jobs:
         id: mix-cache # id to use in retrieve action
         with:
           path: deps
-          key: ${{ runner.os }}-interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: ${{ runner.os }}-interop-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-v1
       - name: Install mix dependencies
         if: steps.mix-cache.outputs.cache-hit != 'true' # only if something in mix.lock changed compared to the cached one
         run: mix deps.get --all
@@ -156,7 +156,7 @@ jobs:
         id: mix-cache # id to use in retrieve action
         with:
           path: deps
-          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-mix-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}-v1
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{matrix.otp}}
